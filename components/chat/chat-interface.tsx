@@ -9,7 +9,13 @@ import { Message as MessageItem } from "./message";
 import { PromptInput } from "./prompt-input";
 
 const supportedExtensions = ["png", "jpg", "jpeg", "tif", "tiff"];
-function readableError(code: string) { return ({ NO_IMAGE: "Add at least one satellite image before analysis.", UNSUPPORTED_IMAGE: "Use PNG, JPEG, TIFF, or GeoTIFF image files.", BACKEND_UNAVAILABLE: "SatQuery is unavailable right now. Check that the backend is running and try again.", ANALYSIS_FAILED: "We couldn’t analyze those images. Please try again." } as Record<string, string>)[code] ?? "Something went wrong. Please try again."; }
+function readableError(code: string) {
+  if (code.startsWith("ANALYSIS_FAILED")) {
+    const detail = code.split(":").slice(1).join(":").replace(/[\r\n]+/g, " ").trim().slice(0, 180);
+    return detail ? `SatQuery analysis failed: ${detail}` : "We couldn’t analyze those images. Please try again.";
+  }
+  return ({ NO_IMAGE: "Add at least one satellite image before analysis.", UNSUPPORTED_IMAGE: "Use PNG, JPEG, TIFF, or GeoTIFF image files.", BACKEND_NOT_CONFIGURED: "SatQuery backend is not configured. Set NEXT_PUBLIC_BACKEND_URL and restart the frontend.", BACKEND_UNAVAILABLE: "SatQuery backend is unavailable. Check the Raspberry Pi backend and Cloudflare Tunnel.", INVALID_RESPONSE: "SatQuery returned an unexpected response. Please check the backend version and try again." } as Record<string, string>)[code] ?? "Something went wrong. Please try again.";
+}
 
 export function ChatInterface() {
   const [images, setImages] = useState<ImageAttachment[]>([]); const [messages, setMessages] = useState<Message[]>([]); const [loading, setLoading] = useState(false); const [error, setError] = useState<string | null>(null);

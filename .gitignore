@@ -1,5 +1,11 @@
 node_modules/
 .next/
 .env*
+!.env.example
 *.tsbuildinfo
 *.log
+.venv/
+venv/
+satquery-env/
+__pycache__/
+*.py[cod]
